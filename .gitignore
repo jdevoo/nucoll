@@ -1,0 +1,7 @@
+nucoll
+target/
+/*.dat
+/*.qry
+/*.gml
+fdat/
+img/
