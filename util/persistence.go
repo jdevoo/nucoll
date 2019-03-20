@@ -96,6 +96,12 @@ func CSVReader(handle string, ext string, data interface{}) error {
 		for i := 0; i < val.NumField(); i++ {
 			fv := val.Field(i)
 			switch fv.Kind() {
+			case reflect.Bool:
+				ri, err := strconv.ParseBool(r[i])
+				if err != nil {
+					return err
+				}
+				fv.SetBool(ri)
 			case reflect.String:
 				fv.SetString(r[i])
 			case reflect.Uint64:
@@ -171,6 +177,8 @@ func CSVWriter(handle string, ext string, appendFlag bool, data interface{}) (st
 				}
 			case reflect.String:
 				cols[i] = strings.Replace(fmt.Sprintf("%v", t.Field(i).Interface()), "\n", " ", -1)
+			case reflect.Bool:
+				fallthrough
 			case reflect.Uint64:
 				fallthrough
 			case reflect.Int:

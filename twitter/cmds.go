@@ -39,6 +39,8 @@ type SearchResult struct {
 type UserObject struct {
 	ID              uint64 `json:"id"`
 	ScreenName      string `json:"screen_name"`
+	Protected       bool   `json:"protected"`
+	Verified        bool   `json:"verified"`
 	FriendsCount    int    `json:"friends_count"`
 	FollowersCount  int    `json:"followers_count"`
 	ListedCount     int    `json:"listed_count"`
@@ -326,6 +328,8 @@ func (ns Twitter) Edgelist(egoFlag bool, missingFlag bool, args []string) {
 	var cols = []string{
 		"ID",
 		"ScreenName",
+		"Protected",
+		"Verified",
 		"FriendsCount",
 		"FollowersCount",
 		"ListedCount",
