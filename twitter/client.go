@@ -34,7 +34,7 @@ type APIErrors struct {
 	Errors []APIError `json:"errors"`
 }
 
-// RoundTrip intercepts API responses and checks if throttling pauses is required
+// RoundTrip intercepts API responses and checks if a throttling pause is required
 func (t *NucollTransport) RoundTrip(req *http.Request) (res *http.Response, err error) {
 	if t.Config.AccessToken != "" {
 		req.Header.Add("Authorization", "Bearer "+t.Config.AccessToken)

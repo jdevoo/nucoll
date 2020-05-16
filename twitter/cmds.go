@@ -88,13 +88,14 @@ func (ns Twitter) ids(relation string, param string) ([]string, error) {
 	}
 	defer res.Body.Close()
 	json.NewDecoder(res.Body).Decode(&result)
-	ids = result.IDs
+	ids = append(ids, result.IDs...)
 	cursor := result.NextCursor
 	for cursor != 0 {
 		res, err = ns.Client.Get(fmt.Sprintf(endpoint+"&cursor=%d", relation, arg, cursor))
 		if err != nil {
 			return nil, err
 		}
+		defer res.Body.Close()
 		json.NewDecoder(res.Body).Decode(&result)
 		ids = append(ids, result.IDs...)
 		cursor = result.NextCursor
@@ -105,6 +106,7 @@ func (ns Twitter) ids(relation string, param string) ([]string, error) {
 // members returns an array of hydrated nucoll user objects belonging to a list
 func (ns Twitter) members(list string, param string) ([]UserObject, error) {
 	var result MembersResult
+	var users []UserObject
 	const endpoint = "https://api.twitter.com/1.1/lists/members.json?slug=%s&owner_screen_name=%s&count=5000&skip_status=true"
 
 	res, err := ns.Client.Get(fmt.Sprintf(endpoint, list, param))
@@ -117,13 +119,14 @@ func (ns Twitter) members(list string, param string) ([]UserObject, error) {
 		result.Users[i].Relation = list
 		result.Users[i].Subject = param
 	}
-	users := result.Users
+	users = append(users, result.Users...)
 	cursor := result.NextCursor
 	for cursor != 0 {
 		res, err = ns.Client.Get(fmt.Sprintf(endpoint+"&cursor=%d", list, param, cursor))
 		if err != nil {
 			return nil, err
 		}
+		defer res.Body.Close()
 		json.NewDecoder(res.Body).Decode(&result)
 		for i := range result.Users {
 			result.Users[i].Relation = list
@@ -149,6 +152,7 @@ func (ns Twitter) show(handle string) (UserObject, error) {
 	if err != nil {
 		return result, err
 	}
+	defer res.Body.Close()
 	json.NewDecoder(res.Body).Decode(&result)
 
 	return result, nil
@@ -175,6 +179,7 @@ func (ns Twitter) retweetersOf(handle string, maxCount int) ([]string, error) {
 			if err != nil {
 				return nil, err
 			}
+			defer res.Body.Close()
 			json.NewDecoder(res.Body).Decode(&result.Statuses)
 			if len(result.Statuses) == 0 {
 				break
@@ -267,6 +272,7 @@ func (ns Twitter) Init(followersFlag bool, maxPostCount int, queryFlag bool, nom
 		if err != nil {
 			log.Fatal("failed to use Twitter client: ", err)
 		}
+		defer res.Body.Close()
 		json.NewDecoder(res.Body).Decode(&result)
 		for i := range result {
 			if maxPostCount > 0 {
@@ -409,6 +415,7 @@ func (ns Twitter) Posts(queryFlag bool, list string, postID uint64, args []strin
 		if err != nil {
 			log.Fatal("failed to use Twitter client: ", err)
 		}
+		defer res.Body.Close()
 		if queryFlag || postID != 0 {
 			json.NewDecoder(res.Body).Decode(&result)
 		} else {
